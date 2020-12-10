@@ -1,0 +1,55 @@
+{
+  "name": "octopus-guard",
+  "version": "1.0.0",
+  "description": "octopusjs react guard",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "format": "prettier --config .prettierrc --write src/**/*",
+    "build": "npm run clean && tsc && gulp bundle"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krakenui/octopus-guard.git"
+  },
+  "keywords": [
+    "krakenui",
+    "octopus",
+    "guard",
+    "safe",
+    "router",
+    "sso",
+    "validate",
+    "keycloak"
+  ],
+  "author": "Luong Phung <luonguit@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-redux": "^7.1.3",
+    "react-router-dom": "^5.1.2",
+    "redux": "^4.0.5"
+  },
+  "dependencies": {
+    "keycloak-js": "^9.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^13.9.0",
+    "gulp": "^4.0.2",
+    "gulp-cli": "^2.3.0",
+    "mongoose": "^5.9.3",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-redux": "^7.1.3",
+    "react-router-dom": "^5.1.2",
+    "redux": "^4.0.5",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.6.2",
+    "tslint": "^6.0.0",
+    "typescript": "^3.8.3"
+  }
+}
