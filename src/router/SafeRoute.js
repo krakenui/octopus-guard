@@ -3,7 +3,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route } from 'react-router-dom';
 
-import { allowMatching, SSO_LOGIN_AUTHEN_ACTION, SSO_LOGIN_AUTHOR_ACTION } from './common';
+import { allowMatching, SSO_LOGIN_AUTHEN_ACTION, SSO_LOGIN_AUTHOR_ACTION } from '../common';
 
 const SafeRoute = ({ exact, path, render, component: Component, roles }) => {
     const { roles: userRoles } = useSelector(state => state.user);
