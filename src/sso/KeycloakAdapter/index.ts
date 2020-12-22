@@ -24,12 +24,8 @@ export function createLoginUrl(options: KeycloakOptions) {
     '&scope=' +
     encodeURIComponent(scope) +
     '&nonce=' +
-    encodeURIComponent(nonce) +
-    '&max_age=' +
-    encodeURIComponent(maxAge) +
-    '&login_hint=' +
-    encodeURIComponent(loginHint);
-
+    encodeURIComponent(nonce);
+  
   return loginUrl;
 }
 
