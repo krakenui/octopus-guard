@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { promises } from 'dns';
-import Keycloak, { KeycloakOnLoad } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 
 import {
   AUTH_DISPLAY_NAME,
@@ -50,6 +49,8 @@ function checkSSO(): Promise<boolean> {
           localStorage.setItem(SSO_REFRESH_TOKEN, _instance.refreshToken);
 
           clearSSORequestFlag();
+          window.location.reload();
+
           resolve(true);
         } else {
           resolve(false);
@@ -72,6 +73,13 @@ function login(): Promise<boolean> {
 }
 
 function logout() {
+  // clean login info
+  localStorage.removeItem(AUTH_USER_ROLES);
+  localStorage.removeItem(AUTH_DISPLAY_NAME);
+  localStorage.removeItem(AUTH_USER_NAME);
+  localStorage.removeItem(SSO_ACCESS_TOKEN);
+  localStorage.removeItem(SSO_REFRESH_TOKEN);
+
   const logoutUrl = createLogoutUrl(SSO_INFO);
   clearSSORequestFlag();
   window.location.replace(logoutUrl);
