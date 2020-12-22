@@ -11,10 +11,13 @@ import {
   SSO_REFRESH_TOKEN,
 } from '../common/config';
 import {
+  clearSSOReloadFlag,
   clearSSORequestFlag,
   getAccessToken,
   getRefreshToken,
+  getSSOReloadFlag,
   getSSORequestFlag,
+  setSSOReloadFlag,
   setSSORequestFlag,
 } from '../common/helper';
 import { parseJwtToken, tokenIsExpired } from './JwtToken';
@@ -23,7 +26,7 @@ import { createLoginUrl, createLogoutUrl, createTokenUrl } from './KeycloakAdapt
 const LOAD_CHECK_SSO = 'check-sso';
 // refs: https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/javascript-adapter.adoc
 
-function checkSSO($windows): Promise<boolean> {
+function checkSSO(): Promise<boolean> {
   let _instance = Keycloak(SSO_INFO);
 
   return new Promise((resolve, reject) => {
@@ -49,9 +52,7 @@ function checkSSO($windows): Promise<boolean> {
           localStorage.setItem(SSO_REFRESH_TOKEN, _instance.refreshToken);
 
           clearSSORequestFlag();
-          setTimeout(() => {
-            $windows.location.reload();               
-          }, 10);
+          setSSOReloadFlag(Date.now());
 
           resolve(true);
         } else {
@@ -139,7 +140,7 @@ function initBasicFlow(): Promise<boolean> {
   }
 
   // If has flag login request -> call resume check sso
-  return checkSSO(window);
+  return checkSSO();
 }
 
 /**
@@ -170,7 +171,14 @@ function initResumeFlow(): Promise<boolean> {
   }
 
   // If has flag login request -> call resume check sso
-  return checkSSO(window);
+  return checkSSO();
 }
 
-export { login, logout, refreshToken, initBasicFlow, initResumeFlow };
+function enforceReload() {
+  if (getSSOReloadFlag() != null) {
+    clearSSOReloadFlag();
+    window.location.reload();
+  }
+}
+
+export { login, logout, refreshToken, initBasicFlow, initResumeFlow, enforceReload };

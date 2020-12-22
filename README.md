@@ -74,9 +74,9 @@ Initial basic flow:
 Using:
 
 ```
-import { initBasicFlow } from "octopus-guard";
+import { initBasicFlow, enforceReload } from "octopus-guard";
 
-initBasicFlow().then().catch();
+initBasicFlow().then(() => {enforceReload();}).catch();
 ```
 
 - Resume flow:
@@ -92,9 +92,9 @@ Initial resume flow:
 Using:
 
 ```
-import { initResumeFlow } from "octopus-guard";
+import { initResumeFlow, enforceReload } from "octopus-guard";
 
-initResumeFlow().then().catch();
+initResumeFlow().then(() => {enforceReload();}).catch();
 ```
 
 - Request login

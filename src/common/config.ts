@@ -1,6 +1,7 @@
 export const SSO_ACCESS_TOKEN = 'access_token';
 export const SSO_REFRESH_TOKEN = 'refresh_token';
 export const SSO_REQUEST_FLAG = 'kc_login_wating_frame';
+export const SSO_RELOAD_FLAG = 'kc_login_wating_reload';
 
 export const AUTH_DISPLAY_NAME = 'auth_user_name';
 export const AUTH_USER_EMAIL = 'auth_user_email';

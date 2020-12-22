@@ -1,4 +1,4 @@
-import { SSO_ACCESS_TOKEN, SSO_REFRESH_TOKEN, SSO_REQUEST_FLAG } from './config';
+import { SSO_ACCESS_TOKEN, SSO_REFRESH_TOKEN, SSO_RELOAD_FLAG, SSO_REQUEST_FLAG } from './config';
 
 export const allowMatching = (expectAllows, provide) => {
   const expectAllowArr = expectAllows.split(',');
@@ -26,4 +26,16 @@ export function setSSORequestFlag(text) {
 
 export function clearSSORequestFlag() {
   return localStorage.removeItem(SSO_REQUEST_FLAG);
+}
+
+export function setSSOReloadFlag(text) {
+  return localStorage.setItem(SSO_RELOAD_FLAG, text);
+}
+
+export function getSSOReloadFlag() {
+  return localStorage.getItem(SSO_RELOAD_FLAG);
+}
+
+export function clearSSOReloadFlag() {
+  return localStorage.removeItem(SSO_RELOAD_FLAG);
 }
