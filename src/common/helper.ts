@@ -1,11 +1,11 @@
-import { SSO_ACCESS_TOKEN, SSO_REFRESH_TOKEN, SSO_REQUEST_FLAG } from "./config";
+import { SSO_ACCESS_TOKEN, SSO_REFRESH_TOKEN, SSO_REQUEST_FLAG } from './config';
 
 export const allowMatching = (expectAllows, provide) => {
-  const expectAllowArr = expectAllows.split(",");
-  const provideArr = provide.split(",");
+  const expectAllowArr = expectAllows.split(',');
+  const provideArr = provide.split(',');
   const hasProvide = provideArr.some((r) => expectAllowArr.indexOf(r) >= 0);
 
-  return hasProvide || expectAllowArr.some((r) => r === "*");
+  return hasProvide || expectAllowArr.some((r) => r === '*');
 };
 
 export function getAccessToken() {
@@ -18,4 +18,12 @@ export function getRefreshToken() {
 
 export function getSSORequestFlag() {
   return localStorage.getItem(SSO_REQUEST_FLAG);
+}
+
+export function setSSORequestFlag(text) {
+  return localStorage.setItem(SSO_REQUEST_FLAG, text);
+}
+
+export function clearSSORequestFlag() {
+  return localStorage.removeItem(SSO_REQUEST_FLAG);
 }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { promises } from 'dns';
 import Keycloak, { KeycloakOnLoad } from 'keycloak-js';
 
 import {
@@ -10,18 +11,27 @@ import {
   SSO_INFO,
   SSO_REFRESH_TOKEN,
 } from '../common/config';
-import { getAccessToken, getRefreshToken, getSSORequestFlag } from '../common/helper';
+import {
+  clearSSORequestFlag,
+  getAccessToken,
+  getRefreshToken,
+  getSSORequestFlag,
+  setSSORequestFlag,
+} from '../common/helper';
 import { parseJwtToken, tokenIsExpired } from './JwtToken';
+import { createLoginUrl, createLogoutUrl, createTokenUrl } from './KeycloakAdapter';
 
-function init(): Promise<boolean> {
+const LOAD_CHECK_SSO = 'check-sso';
+// refs: https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/javascript-adapter.adoc
+
+function checkSSO(): Promise<boolean> {
   let _instance = Keycloak(SSO_INFO);
 
   return new Promise((resolve, reject) => {
     _instance
       .init({
-        onLoad: SSO_INFO.checkSSO as KeycloakOnLoad,
-        checkLoginIframe: false,
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        onLoad: LOAD_CHECK_SSO,
+        silentCheckSsoRedirectUri: SSO_INFO.silentCheckSsoRedirectUri,
       })
       .then((auth) => {
         if (auth) {
@@ -38,6 +48,8 @@ function init(): Promise<boolean> {
           localStorage.setItem(AUTH_DISPLAY_NAME, jwtToken.displayName);
           localStorage.setItem(SSO_ACCESS_TOKEN, _instance.token);
           localStorage.setItem(SSO_REFRESH_TOKEN, _instance.refreshToken);
+
+          clearSSORequestFlag();
           resolve(true);
         } else {
           resolve(false);
@@ -50,33 +62,33 @@ function init(): Promise<boolean> {
 }
 
 function login(): Promise<boolean> {
-  let _instance = Keycloak(SSO_INFO);
+  const loginUrl = createLoginUrl(SSO_INFO);
+  // marked client wait login redirect
+  // from keycloak server
+  setSSORequestFlag(Date.now());
+  window.location.replace(loginUrl);
 
-  return new Promise((resolve, reject) => {
-    _instance
-      .login({
-        redirectUri: window.location.href,
-      })
-      .then(() => {
-        resolve(true);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+  return Promise.resolve(true);
 }
 
-export function refreshToken() {
-  const { url, realm, clientId } = SSO_INFO;
-  const requestUrl = `${url}/realms/${realm}/protocol/openid-connect/token`;
+function logout() {
+  const logoutUrl = createLogoutUrl(SSO_INFO);
+  clearSSORequestFlag();
+  window.location.replace(logoutUrl);
+}
+
+function refreshToken() {
+  const { clientId } = SSO_INFO;
+  const refreshTokenUrl = createTokenUrl(SSO_INFO);
   const rfToken = getRefreshToken();
+
   const params = new URLSearchParams();
   params.append('grant_type', 'refresh_token');
   params.append('client_id', clientId);
   params.append('refresh_token', rfToken);
 
   return axios
-    .post(requestUrl, params, {
+    .post(refreshTokenUrl, params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -89,40 +101,14 @@ export function refreshToken() {
     });
 }
 
-export function logout(): Promise<boolean> {
-  const { redirectUri, url, realm } = SSO_INFO;
-  const pathname = window.location.pathname;
-  const currentUrl = redirectUri + '/' + pathname;
-
-  return new Promise((resolve, reject) => {
-    // clear login informations
-    localStorage.removeItem(AUTH_USER_ROLES);
-    localStorage.removeItem(AUTH_DISPLAY_NAME);
-    localStorage.removeItem(AUTH_USER_NAME);
-    localStorage.removeItem(SSO_ACCESS_TOKEN);
-    localStorage.removeItem(SSO_REFRESH_TOKEN);
-
-    let realmUrl = url + '/realms/' + encodeURIComponent(realm);
-    if (url.charAt(url.length - 1) === '/') {
-      realmUrl = url + 'realms/' + encodeURIComponent(realm);
-    }
-
-    const logoutUrl = realmUrl + '/protocol/openid-connect/logout?redirect_uri=' + encodeURIComponent(currentUrl);
-
-    // redirect to logout url
-    window.location.replace(logoutUrl);
-    resolve(true);
-  });
-}
-
 /**
  * Initial basic flow:
  *  * Check if token valid -> return by pass
  *  * If token is expired -> refresh token
  *  * If token not exist -> request login
- *  * If has flag login request -> call resume
+ *  * If has flag login request -> call resume check sso
  */
-export function initBasicFlow(): Promise<boolean> {
+function initBasicFlow(): Promise<boolean> {
   const token = getAccessToken();
   if (token != null) {
     const jwtToken = parseJwtToken(token);
@@ -142,8 +128,8 @@ export function initBasicFlow(): Promise<boolean> {
     return login();
   }
 
-  // If has flag login request -> call resume
-  return init();
+  // If has flag login request -> call resume check sso
+  return checkSSO();
 }
 
 /**
@@ -151,9 +137,9 @@ export function initBasicFlow(): Promise<boolean> {
  *  * Check if token valid -> return by pass
  *  * If token is expired -> refresh token
  *  * If token not exist -> return by pass
- *  * If has flag login request -> call resume
+ *  * If has flag login request -> call resume check sso
  */
-export function initResumeFlow(): Promise<boolean> {
+function initResumeFlow(): Promise<boolean> {
   const token = getAccessToken();
   if (token != null) {
     const jwtToken = parseJwtToken(token);
@@ -173,6 +159,8 @@ export function initResumeFlow(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  // If has flag login request -> call resume
-  return init();
+  // If has flag login request -> call resume check sso
+  return checkSSO();
 }
+
+export { login, logout, refreshToken, initBasicFlow, initResumeFlow };

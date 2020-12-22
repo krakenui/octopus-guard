@@ -68,7 +68,7 @@ Initial basic flow:
  * Check if token valid -> return by pass
  * If token is expired -> refresh token
  * If token not exist -> request login
- * If has flag login request -> call resume
+ * If has flag login request -> call resume check sso
 ```
 
 Using:
@@ -86,7 +86,7 @@ Initial resume flow:
  * Check if token valid -> return by pass
  * If token is expired -> refresh token
  * If token not exist -> return by pass
- * If has flag login request -> call resume
+ * If has flag login request -> call resume check sso
 ```
 
 Using:
@@ -95,4 +95,28 @@ Using:
 import { initResumeFlow } from "octopus-guard";
 
 initResumeFlow().then().catch();
+```
+
+- Request login
+
+```
+import { login } from "octopus-guard";
+
+login().then().catch();
+```
+
+- Request logout
+
+```
+import { logout } from "octopus-guard";
+
+logout().then().catch();
+```
+
+- Request refresh token
+
+```
+import { refreshToken } from "octopus-guard";
+
+refreshToken().then().catch();
 ```
