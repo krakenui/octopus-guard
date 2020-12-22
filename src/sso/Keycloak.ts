@@ -49,7 +49,9 @@ function checkSSO($windows): Promise<boolean> {
           localStorage.setItem(SSO_REFRESH_TOKEN, _instance.refreshToken);
 
           clearSSORequestFlag();
-          $windows.location.reload();
+          setTimeout(() => {
+            $windows.location.reload();               
+          }, 10);
 
           resolve(true);
         } else {
