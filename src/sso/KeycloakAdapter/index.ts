@@ -6,7 +6,7 @@ export function createLoginUrl(options: KeycloakOptions) {
   const state = createUUID();
   const nonce = createUUID();
 
-  const baseUrl = url + '/realms' + realm + '/protocol/openid-connect/auth';
+  const baseUrl = url + '/realms/' + realm + '/protocol/openid-connect/auth';
   if (scope == null) {
     scope = 'openid';
   }
@@ -36,7 +36,7 @@ export function createLoginUrl(options: KeycloakOptions) {
 export function createLogoutUrl(options: KeycloakOptions) {
   let { redirectUri, url, realm } = options;
 
-  const baseUrl = url + '/realms' + realm + '/protocol/openid-connect/logout';
+  const baseUrl = url + '/realms/' + realm + '/protocol/openid-connect/logout';
   const logoutUrl = baseUrl + '?redirect_uri=' + encodeURIComponent(redirectUri);
 
   return logoutUrl;
@@ -44,7 +44,7 @@ export function createLogoutUrl(options: KeycloakOptions) {
 
 export function createTokenUrl(options: KeycloakOptions) {
   let { url, realm } = options;
-  const tokenUrl = url + '/realms' + realm + '/protocol/openid-connect/token';
+  const tokenUrl = url + '/realms/' + realm + '/protocol/openid-connect/token';
 
   return tokenUrl;
 }
