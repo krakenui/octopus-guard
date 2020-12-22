@@ -23,7 +23,7 @@ import { createLoginUrl, createLogoutUrl, createTokenUrl } from './KeycloakAdapt
 const LOAD_CHECK_SSO = 'check-sso';
 // refs: https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/javascript-adapter.adoc
 
-function checkSSO(): Promise<boolean> {
+function checkSSO($windows): Promise<boolean> {
   let _instance = Keycloak(SSO_INFO);
 
   return new Promise((resolve, reject) => {
@@ -49,7 +49,7 @@ function checkSSO(): Promise<boolean> {
           localStorage.setItem(SSO_REFRESH_TOKEN, _instance.refreshToken);
 
           clearSSORequestFlag();
-          window.location.reload();
+          $windows.location.reload();
 
           resolve(true);
         } else {
@@ -137,7 +137,7 @@ function initBasicFlow(): Promise<boolean> {
   }
 
   // If has flag login request -> call resume check sso
-  return checkSSO();
+  return checkSSO(window);
 }
 
 /**
@@ -168,7 +168,7 @@ function initResumeFlow(): Promise<boolean> {
   }
 
   // If has flag login request -> call resume check sso
-  return checkSSO();
+  return checkSSO(window);
 }
 
 export { login, logout, refreshToken, initBasicFlow, initResumeFlow };
